@@ -12,7 +12,10 @@ void setup() {
   catch(AWTException e) {
   };
   size(640, 480, P3D);
-  noSmooth();
+  //noSmooth();
+  smooth(4);
+  float fov = radians(90);
+  perspective(fov, float(width)/float(height), 1.0, 600.0);
 }
 
 color sora = color(200, 230, 255);
@@ -29,18 +32,21 @@ void drawbox(int x, int y, int z, int xs, int ys, int zs) {
 float px, py, pz, pxs, pys, pzs;
 float rx, ry;
 
+boolean enable = true;
+
 void draw() {
+  pushMatrix();
   int screenX = (int)getWindowLocation(P3D).x;
   int screenY = (int)getWindowLocation(P3D).y;
   int screenCenterX = (int)getWindowLocation(P3D).x+(width/2);
   int screenCenterY = (int)getWindowLocation(P3D).y+(height/2);
   int mvx = mouseX-(width/2);
   int mvy = mouseY-(height/2);
-  if(frameCount == 1){
+  if (frameCount == 1 || !enable) {
     mvx = 0;
     mvy = 0;
   }
-  if(true)robot.mouseMove(screenCenterX,screenCenterY);
+  if (enable)robot.mouseMove(screenCenterX, screenCenterY);
   //println(getWindowLocation(P3D).x,getWindowLocation(P3D).y);
   float ex = 0, ey = 0, ez = 8*16, cx = 0, cy = 0, cz = 0;
 
@@ -61,7 +67,7 @@ void draw() {
   background(sora);
 
   ambientLight(128, 128, 128);
-  directionalLight(128, 128, 128, px, py, pz);
+  directionalLight(256, 256, 256, -0.5, 1, -0.5);
 
 
   fill(255);
@@ -70,9 +76,9 @@ void draw() {
 
   boolean asi = false;
 
-  for (int z = int(pz/16)-12; z < int(pz/16)+12; z++) {
+  for (int z = int(pz/16)-16; z < int(pz/16)+16; z++) {
     for (int i = int(px/16)-16; i < int(px/16)+16; i++) {
-      for (int f = int(py/16)-12; f < int(py/16)+12; f++) {
+      for (int f = int(py/16)-16; f < int(py/16)+16; f++) {
         int b = get_map(i, f, z);
         int c = 0;
         if (b == 1) {
@@ -95,6 +101,9 @@ void draw() {
           //float a = k(int(px/16),i)+k(int(py/16),f)+k(int(pz/16),z);
           //float t = (a/30.0);
           //t -= 0.4;
+          int X = int(i*16);
+          int Y = int(f*16);
+          int Z = int(z*16);
           float R = noise((i/16.0)+014, (f/16.0)+137, z/8.0)*256;
           float G = noise((i/16.0)+500, (f/16.0)+127, z/8.0)*256;
           float B = noise((i/16.0)+401, (f/16.0)+100, z/8.0)*256;
@@ -103,12 +112,26 @@ void draw() {
           //fill( aida(R,red(sora),t),aida(G,green(sora),t),aida(B,blue(sora),t) );
           fill(R, G, B);
           if (c == 1)fill(255, 0, 255);
-          drawbox(int((i)*16), int((f)*16), int((z)*16), 16, 16, 16);
+          float sx = screenX(X,Y,Z);
+          float sy = screenY(X,Y,Z);
+          boolean draw = true;
+          if( (sx > width || sx < 0) && (sy > height || sy < 0)){
+            draw = false;
+          }
+          if(draw)drawbox(X,Y,Z, 16, 16, 16);
         }
         //
       }
     }
   }
+  noLights();
+  fill(red(sora), green(sora), blue(sora), 200);
+  int kied = 14*16*2;
+  drawbox((int)px, (int)py, (int)pz, kied, kied, kied);
+  noLights();
+  fill(red(sora), green(sora), blue(sora), 80);
+  int kirid = 12*16*2;
+  drawbox((int)px, (int)py, (int)pz, kirid, kirid, kirid);
   //
 
   px += pxs;
@@ -121,9 +144,9 @@ void draw() {
   //if (keys['d'])rx += 0.04;
   rx += mvx/100.0;
   ry -= mvy/100.0;
-  
-  if(ry > HALF_PI-0.01)ry = HALF_PI-0.01;
-  if(ry < -(HALF_PI-0.01))ry = -(HALF_PI-0.01);
+
+  if (ry > HALF_PI-0.01)ry = HALF_PI-0.01;
+  if (ry < -(HALF_PI-0.01))ry = -(HALF_PI-0.01);
 
   if (keys['w']) {
     pxs -= rox;
@@ -147,6 +170,12 @@ void draw() {
   pzs /= 1.5;
 
   println((int)px/16, (int)py/16, (int)pz/16);
+
+  popMatrix();
+  if (!enable) {
+    fill(255, 64);
+    rect(0, 0, width, height);
+  }
   //
 }
 

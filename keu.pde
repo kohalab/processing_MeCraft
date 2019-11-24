@@ -6,6 +6,7 @@ void keyPressed() {
   keycodes[keyCode] = true;
   if(key == ESC)exit();
   if(keyCode == ESC)exit();
+  if(key == 'p')enable = !enable;
 }
 void keyReleased() {
   keys[key] = false;
