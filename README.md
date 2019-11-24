@@ -1,2 +1,2 @@
 # processing_MeCraft
-like...*minecraft*?
+*マインクラフト*みたいな...
